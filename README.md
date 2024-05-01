@@ -1,3 +1,4 @@
-# shared-workflows
+# Actions
 
-[![Super-Linter](https://github.com/arghpy/shared-workflows/actions/workflows/manage_pull_requests.yaml/badge.svg)](https://github.com/marketplace/actions/super-linter)
+This repository is meant for testing GitHub actions.
+It is also meant to be a place of reusable workflows.
