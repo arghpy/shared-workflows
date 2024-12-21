@@ -8,12 +8,7 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-
   lint_changed_files:
     name: Lint Changed Files
     uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
