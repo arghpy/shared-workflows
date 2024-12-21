@@ -9,18 +9,11 @@ on:
         type: string
 
 jobs:
-  lint_changed_files:
-    name: Lint Changed Files
-    uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-
   get_pr_status:
     name: Get PR Status
     runs-on: ${{ inputs.runner }}
     outputs:
-      pr_status: ${{ steps.pr_status.outputs.pr_status }}
+      mergeable: ${{ steps.pr_status.outputs.mergeable }}
       draft_state: ${{ steps.pr_status.outputs.draft_state }}
 
     steps:
@@ -29,18 +22,30 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            let prStatus = "false";
+            let mergeable = "false";
             let draftState = core.getInput('is-draft') === "false" ? "false" : "true";
             let reviewState = core.getInput('review-state');
             let labeledWithMerge = core.getInput('labeled-with-merge');
 
-            console.log(`labeledWithMerge: ${labeledWithMerge}`);
-            console.log(typeof labeledWithMerge);
-            core.setOutput("pr_status", prStatus);
+            if (draftState === "true" && labeledWithMerge === "true") {
+              mergeable = "true";
+            }
+
+            core.setOutput("mergeable", prStatus);
             core.setOutput("draft_state", draftState);
           is-draft: ${{ github.event.pull_request.draft }}
           review-state: ${{ github.event.review.state }}
           labeled-with-merge: ${{ contains(github.event.*.labels.*.name, 'merge') }}
+
+  lint_changed_files:
+    name: Lint Changed Files
+    needs: get_pr_status
+    if: |
+      needs.get_pr_status.outputs.draft_state == 'false'
+    uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
 
   auto_merge:
     name: Auto Merge
@@ -49,7 +54,7 @@ jobs:
     if: |
       always() &&
       needs.get_pr_status.result == 'success' &&
-      needs.get_pr_status.outputs.pr_status == 'true' &&
+      needs.get_pr_status.outputs.mergeable == 'true' &&
       needs.lint_changed_files.result == 'success'
 
     steps:
