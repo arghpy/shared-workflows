@@ -17,7 +17,7 @@ jobs:
       draft_state: ${{ steps.pr_status.outputs.draft_state }}
 
     steps:
-      - name: Assess PR Status
+      - name: Get PR Status
         id: pr_status
         uses: actions/github-script@v7
         with:
@@ -47,7 +47,8 @@ jobs:
     name: Lint Changed Files
     needs: get_pr_status
     if: |
-      needs.get_pr_status.outputs.draft_state == 'false'
+      needs.get_pr_status.outputs.draft_state == 'false' &&
+      needs.get_pr_status.outputs.mergeable == 'false'
     uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
     secrets: inherit
     with:
@@ -61,7 +62,7 @@ jobs:
       always() &&
       needs.get_pr_status.result == 'success' &&
       needs.get_pr_status.outputs.mergeable == 'true' &&
-      needs.lint_changed_files.result == 'success'
+      (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped')
 
     steps:
       - name: Auto-merge
