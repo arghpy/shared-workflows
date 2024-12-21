@@ -24,12 +24,17 @@ jobs:
           script: |
             let mergeable = "false";
             let draftState = core.getInput('is-draft') === "false" ? "false" : "true";
-            let reviewState = core.getInput('review-state');
+            let reviewState = core.getInput('review-state') === "approved" ? "approved" : "not approved";
             let labeledWithMerge = core.getInput('labeled-with-merge');
 
-            if (draftState === "true" && labeledWithMerge === "true") {
+            if (draftState === "false" && (reviewState === "approved" || labeledWithMerge === "true")) {
               mergeable = "true";
             }
+
+            console.log(`Pull request:`);
+            console.log(`\t- is a draft: ${draftState}`);
+            console.log(`\t- is mergeable: ${mergeable}`);
+            console.log(`\t- was${reviewState}`);
 
             core.setOutput("mergeable", mergeable);
             core.setOutput("draft_state", draftState);
