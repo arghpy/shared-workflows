@@ -1,27 +1,12 @@
-name: "Manage Pull Requests"
+name: Manage Pull Requests
 
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-      - ready_for_review
-      - labeled
-      - unlabeled
-  pull_request_review:
-    types:
-      - submitted
-
-permissions:
-  issues: write
-  pull-requests: write
-  contents: write
+  workflow_call:
 
 jobs:
 
-  lint_files:
-    name: Lint Files
+  lint_changed_files:
+    name: Lint Changed Files
     uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
     secrets: inherit
     with:
