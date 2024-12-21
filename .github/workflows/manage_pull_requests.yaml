@@ -44,12 +44,12 @@ jobs:
   auto_merge:
     name: Auto Merge
     runs-on: ${{ inputs.runner }}
-    needs: [lint_files, get_pr_status]
+    needs: [lint_changed_files, get_pr_status]
     if: |
       always() &&
       needs.get_pr_status.result == 'success' &&
       needs.get_pr_status.outputs.pr_status == 'true' &&
-      needs.lint_files.result == 'success'
+      needs.lint_changed_files.result == 'success'
 
     steps:
       - name: Auto-merge
