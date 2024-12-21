@@ -31,7 +31,7 @@ jobs:
               mergeable = "true";
             }
 
-            core.setOutput("mergeable", prStatus);
+            core.setOutput("mergeable", mergeable);
             core.setOutput("draft_state", draftState);
           is-draft: ${{ github.event.pull_request.draft }}
           review-state: ${{ github.event.review.state }}
