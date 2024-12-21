@@ -9,12 +9,12 @@ on:
         type: string
 
 jobs:
-  # lint_changed_files:
-  #   name: Lint Changed Files
-  #   uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
-  #   secrets: inherit
-  #   with:
-  #     runner: ${{ inputs.runner }}
+  lint_changed_files:
+    name: Lint Changed Files
+    uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
 
   get_pr_status:
     name: Get PR Status
