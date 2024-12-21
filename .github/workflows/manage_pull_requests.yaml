@@ -54,8 +54,8 @@ jobs:
     with:
       runner: ${{ inputs.runner }}
 
-  auto_merge:
-    name: Auto Merge
+  auto_merge_optional:
+    name: Optional required check before merging
     runs-on: ${{ inputs.runner }}
     needs: [lint_changed_files, get_pr_status]
     if: |
@@ -63,12 +63,23 @@ jobs:
       needs.get_pr_status.result == 'success' &&
       needs.get_pr_status.outputs.mergeable == 'true' &&
       (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped')
-
     steps:
       - name: Required step to use
         id: optional_required_step
         run: echo "Ready to be merged"
 
+  auto_merge:
+    name: Auto Merge
+    runs-on: ${{ inputs.runner }}
+    needs: [lint_changed_files, get_pr_status, auto_merge_optional]
+    if: |
+      always() &&
+      needs.get_pr_status.result == 'success' &&
+      needs.get_pr_status.outputs.mergeable == 'true' &&
+      (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped') &&
+      (needs.auto_merge_optional.result == 'success' || needs.auto_merge_optional.result == 'skipped')
+
+    steps:
       - name: Auto-merge
         id: auto_merge
         uses: actions/github-script@v7
