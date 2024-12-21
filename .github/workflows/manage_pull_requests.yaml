@@ -32,14 +32,15 @@ jobs:
             let prStatus = "false";
             let draftState = core.getInput('is-draft') === "false" ? "false" : "true";
             let reviewState = core.getInput('review-state');
-            let labels = core.getInput('labels');
+            let labeledWithMerge = core.getInput('labeled-with-merge');
 
-            console.log(labels);
+            console.log(`labeledWithMerge: ${labeledWithMerge}`);
+            console.log(typeof labeledWithMerge);
             core.setOutput("pr_status", prStatus);
             core.setOutput("draft_state", draftState);
           is-draft: ${{ github.event.pull_request.draft }}
           review-state: ${{ github.event.review.state }}
-          labels: ${{ github.event.*.labels.*.name }}
+          labeled-with-merge: ${{ ${{ contains(github.event.*.labels.*.name, 'merge') }}
 
   auto_merge:
     name: Auto Merge
