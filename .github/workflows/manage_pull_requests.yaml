@@ -2,6 +2,11 @@ name: Manage Pull Requests
 
 on:
   workflow_call:
+    inputs:
+      runner:
+        description: "GitHub Runner"
+        required: true
+        type: string
 
 jobs:
 
@@ -10,7 +15,7 @@ jobs:
     uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
     secrets: inherit
     with:
-      runner: ${{ vars.RUNNER }}
+      runner: ${{ inputs.runner }}
       config_options: >
         {
         "VALIDATE_GITHUB_ACTIONS": false,
@@ -19,7 +24,7 @@ jobs:
 
   get_pr_status:
     name: Get PR Status
-    runs-on: ${{ vars.RUNNER }}
+    runs-on: ${{ inputs.runner }}
     outputs:
       pr_status: ${{ steps.pr_status.outputs.pr_status }}
 
@@ -37,7 +42,7 @@ jobs:
 
   auto_merge:
     name: Auto Merge
-    runs-on: ${{ vars.RUNNER }}
+    runs-on: ${{ inputs.runner }}
     needs: [lint_files, get_pr_status]
     if: |
       always() &&
