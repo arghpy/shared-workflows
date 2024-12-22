@@ -32,11 +32,6 @@ jobs:
       runner: ${{ inputs.runner }}
 
   auto_merge:
-    uses: arghpy/shared-workflows/.github/workflows/auto_merge.yaml@break_the_other_jobs
-    secrets: inherit
-    with:
-      runner: ${{ inputs.runner }}
-      merge_method: ${{ inputs.merge_method }}
     needs: [lint_changed_files, get_pr_status, auto_merge_optional]
     if: |
       always() &&
@@ -44,3 +39,8 @@ jobs:
       needs.get_pr_status.outputs.mergeable == 'true' &&
       (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped') &&
       (needs.auto_merge_optional.result == 'success' || needs.auto_merge_optional.result == 'skipped')
+    uses: arghpy/shared-workflows/.github/workflows/auto_merge.yaml@break_the_other_jobs
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      merge_method: ${{ inputs.merge_method }}
