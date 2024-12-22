@@ -9,8 +9,12 @@ on:
         required: true
         type: string
     outputs:
-      draft_state: ${{ steps.pr_status.outputs.draft_state }}
-      mergeable: ${{ steps.pr_status.outputs.mergeable }}
+      draft_state:
+        description: "Show if the PR is in draft or not"
+        value: ${{ jobs.get_pr_status.outputs.draft_state }}
+      mergeable:
+        description: "Show if the PR can be merged or not"
+        value: ${{ jobs.get_pr_status.outputs.mergeable }}
 
 jobs:
   get_pr_status:
