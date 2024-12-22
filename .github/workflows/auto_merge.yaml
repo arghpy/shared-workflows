@@ -1,0 +1,61 @@
+---
+name: Auto Merge
+
+on:
+  workflow_call:
+    inputs:
+      runner:
+        description: "GitHub Runner"
+        required: true
+        type: string
+      merge_method:
+        description: "Merge method"
+        required: false
+        type: string
+        default: "merge"
+
+jobs:
+  auto_merge_optional:
+    name: Optional required check before merging
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Required step to use
+        id: optional_required_step
+        run: echo "Ready to be merged"
+
+  auto_merge:
+    name: Auto Merge
+    runs-on: ${{ inputs.runner }}
+    steps:
+      - name: Auto-merge
+        id: auto_merge
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let availableMergeMethods = [
+              "merge",
+              "squash",
+              "rebase",
+            ];
+            let mergeMethod = core.getInput('merge-method');
+            let validMergeMethod = false;
+
+            for (method of availableMergeMethods) {
+              if (method === mergeMethod) {
+                validMergeMethod = true;
+              }
+            }
+
+            if (! validMergeMethod) {
+              console.log(`Wrong merge method ${mergeMethod}.`)
+              console.log(`Must be one of: ${availableMergeMethods}`);
+              process.exit(1);
+            } else {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: context.issue.number,
+                merge_method: mergeMethod
+              });
+            }
+          merge-method: ${{ inputs.merge_method }}

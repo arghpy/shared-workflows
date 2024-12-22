@@ -10,41 +10,13 @@ on:
 
 jobs:
   get_pr_status:
-    name: Get PR Status
-    runs-on: ${{ inputs.runner }}
-    outputs:
-      mergeable: ${{ steps.pr_status.outputs.mergeable }}
-      draft_state: ${{ steps.pr_status.outputs.draft_state }}
-
-    steps:
-      - name: Get PR Status
-        id: pr_status
-        uses: actions/github-script@v7
-        with:
-          script: |
-            let mergeable = "false";
-            let draftState = core.getInput('is-draft') === "false" ? "false" : "true";
-            let reviewState = core.getInput('review-state') === "approved" ? "approved" : "not approved";
-            let labeledWithMerge = core.getInput('labeled-with-merge');
-
-            if (draftState === "false" && (reviewState === "approved" || labeledWithMerge === "true")) {
-              mergeable = "true";
-            }
-
-            console.log(`Pull request:`);
-            console.log(`\t- is a draft: ${draftState}`);
-            console.log(`\t- was ${reviewState}`);
-            console.log(`\t- was labeled with merge: ${mergeable}`);
-            console.log(`\t- is mergeable: ${mergeable}`);
-
-            core.setOutput("mergeable", mergeable);
-            core.setOutput("draft_state", draftState);
-          is-draft: ${{ github.event.pull_request.draft }}
-          review-state: ${{ github.event.review.state }}
-          labeled-with-merge: ${{ contains(github.event.*.labels.*.name, 'merge') }}
+    needs: get_pr_status
+    uses: arghpy/shared-workflows/.github/workflows/get_pr_status.yaml@break_the_other_jobs
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
 
   lint_changed_files:
-    name: Lint Changed Files
     needs: get_pr_status
     if: |
       needs.get_pr_status.outputs.draft_state == 'false' &&
@@ -54,23 +26,12 @@ jobs:
     with:
       runner: ${{ inputs.runner }}
 
-  auto_merge_optional:
-    name: Optional required check before merging
-    runs-on: ${{ inputs.runner }}
-    needs: [lint_changed_files, get_pr_status]
-    if: |
-      always() &&
-      needs.get_pr_status.result == 'success' &&
-      needs.get_pr_status.outputs.mergeable == 'true' &&
-      (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped')
-    steps:
-      - name: Required step to use
-        id: optional_required_step
-        run: echo "Ready to be merged"
-
   auto_merge:
-    name: Auto Merge
-    runs-on: ${{ inputs.runner }}
+    uses: arghpy/shared-workflows/.github/workflows/auto_merge.yaml@break_the_other_jobs
+    secrets: inherit
+    with:
+      runner: ${{ inputs.runner }}
+      merge_method: "merge"
     needs: [lint_changed_files, get_pr_status, auto_merge_optional]
     if: |
       always() &&
@@ -78,16 +39,3 @@ jobs:
       needs.get_pr_status.outputs.mergeable == 'true' &&
       (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped') &&
       (needs.auto_merge_optional.result == 'success' || needs.auto_merge_optional.result == 'skipped')
-
-    steps:
-      - name: Auto-merge
-        id: auto_merge
-        uses: actions/github-script@v7
-        with:
-          script: |
-            await github.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: context.issue.number,
-              merge_method: "rebase"
-            });
