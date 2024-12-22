@@ -15,7 +15,7 @@ on:
 
 jobs:
   get_pr_status:
-    uses: arghpy/shared-workflows/.github/workflows/get_pr_status.yaml@break_the_other_jobs
+    uses: arghpy/shared-workflows/.github/workflows/get_pr_status.yaml@main
     secrets: inherit
     with:
       runner: ${{ inputs.runner }}
@@ -25,7 +25,7 @@ jobs:
     if: |
       needs.get_pr_status.outputs.draft_state == 'false' &&
       needs.get_pr_status.outputs.mergeable == 'false'
-    uses: arghpy/shared-workflows/.github/workflows/lint.yaml@break_the_other_jobs
+    uses: arghpy/shared-workflows/.github/workflows/lint.yaml@main
     secrets: inherit
     with:
       runner: ${{ inputs.runner }}
@@ -37,7 +37,7 @@ jobs:
       needs.get_pr_status.result == 'success' &&
       needs.get_pr_status.outputs.mergeable == 'true' &&
       (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped')
-    uses: arghpy/shared-workflows/.github/workflows/auto_merge.yaml@break_the_other_jobs
+    uses: arghpy/shared-workflows/.github/workflows/auto_merge.yaml@main
     secrets: inherit
     with:
       runner: ${{ inputs.runner }}
