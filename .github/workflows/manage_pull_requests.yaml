@@ -15,7 +15,6 @@ on:
 
 jobs:
   get_pr_status:
-    needs: get_pr_status
     uses: arghpy/shared-workflows/.github/workflows/get_pr_status.yaml@break_the_other_jobs
     secrets: inherit
     with:
