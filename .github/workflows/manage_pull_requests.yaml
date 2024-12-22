@@ -31,13 +31,12 @@ jobs:
       runner: ${{ inputs.runner }}
 
   auto_merge:
-    needs: [lint_changed_files, get_pr_status, auto_merge_optional]
+    needs: [lint_changed_files, get_pr_status]
     if: |
       always() &&
       needs.get_pr_status.result == 'success' &&
       needs.get_pr_status.outputs.mergeable == 'true' &&
-      (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped') &&
-      (needs.auto_merge_optional.result == 'success' || needs.auto_merge_optional.result == 'skipped')
+      (needs.lint_changed_files.result == 'success' || needs.lint_changed_files.result == 'skipped')
     uses: arghpy/shared-workflows/.github/workflows/auto_merge.yaml@break_the_other_jobs
     secrets: inherit
     with:
