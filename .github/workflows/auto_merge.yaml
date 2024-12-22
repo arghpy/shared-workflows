@@ -24,6 +24,7 @@ jobs:
         run: echo "Ready to be merged"
 
   auto_merge:
+    needs: auto_merge_optional
     name: Auto Merge
     runs-on: ${{ inputs.runner }}
     steps:
