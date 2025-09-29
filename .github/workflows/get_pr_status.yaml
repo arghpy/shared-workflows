@@ -33,9 +33,8 @@ jobs:
             let mergeable = "false";
             let draftState = core.getInput('is-draft') === "false" ? "false" : "true";
             let reviewState = core.getInput('review-state') === "approved" ? "approved" : "not approved";
-            let labeledWithMerge = core.getInput('labeled-with-merge');
 
-            if (draftState === "false" && (reviewState === "approved" || labeledWithMerge === "true")) {
+            if (draftState === "false" && reviewState === "approved") {
               mergeable = "true";
             }
 
@@ -49,4 +48,3 @@ jobs:
             core.setOutput("draft_state", draftState);
           is-draft: ${{ github.event.pull_request.draft }}
           review-state: ${{ github.event.review.state }}
-          labeled-with-merge: ${{ contains(github.event.*.labels.*.name, 'merge') }}
