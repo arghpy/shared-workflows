@@ -31,7 +31,7 @@ jobs:
       - name: Process config_options
         id: process_options
         if: ${{ inputs.config_options != '{}' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             let configOptions = core.getInput('config-options');
