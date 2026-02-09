@@ -44,6 +44,6 @@ jobs:
           config-options: ${{ inputs.config_options }}
 
       - name: Start linting
-        uses: super-linter/super-linter@v8.3.2
+        uses: super-linter/super-linter@v8.5.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
