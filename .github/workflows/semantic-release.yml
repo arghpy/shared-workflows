@@ -27,7 +27,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
-          fetch: 0
+          fetch-depth: 0
 
       - name: Set up nodejs
         uses: actions/setup-node@v6
